@@ -1,0 +1,788 @@
+import 'package:flutter_html/flutter_html.dart';
+import 'package:html/parser.dart';
+
+import '../models/neighbourhood_models/neighbourhood_locality_model.dart';
+import '../services/remote_service.dart';
+import '../theme/theme.dart';
+import 'package:flutter/material.dart';
+
+class NeighbourhoodDetailScreen extends StatefulWidget {
+  final String cityId;
+
+  const NeighbourhoodDetailScreen({super.key, required this.cityId});
+
+  @override
+  State<NeighbourhoodDetailScreen> createState() =>
+      _NeighbourhoodDetailScreenState();
+}
+
+class _NeighbourhoodDetailScreenState extends State<NeighbourhoodDetailScreen> {
+  LocalityData? localityData;
+  List<Point> points = [];
+  String cityName = "";
+  String cityImage = "";
+  bool isLoading = true;
+  bool isError = false;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchLocalityDetail();
+  }
+
+  Future<void> fetchLocalityDetail() async {
+    try {
+      final response = await RemoteService().getLocalityDetail(
+        widget.cityId,
+      ); // API call
+      if (response != null && response.data != null) {
+        setState(() {
+          localityData = response.data!;
+          cityName = localityData?.localityName ?? "";
+          cityImage = localityData?.locality_image ?? "";
+          points = localityData?.points ?? [];
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isError = true;
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print("Error: $e");
+      setState(() {
+        isError = true;
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    if (isError || localityData == null) {
+      return const Scaffold(body: Center(child: Text("Failed to load data")));
+    }
+
+    return Scaffold(
+      resizeToAvoidBottomInset: true,
+      extendBodyBehindAppBar: false,
+      appBar: AppBar(
+        backgroundColor: AppColors.primary,
+        leadingWidth: 30,
+        leading: GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: Padding(
+            padding: const EdgeInsets.only(left: 10, bottom: 10, top: 10),
+            child: const Icon(Icons.arrow_back, color: Colors.black),
+          ),
+        ),
+
+        title: Text(cityName.isNotEmpty ? cityName : "City Name"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications, color: AppColors.accent),
+            onPressed: () => Navigator.pop(context),
+          ),
+          Container(
+            width: 40,
+            height: 40,
+            margin: const EdgeInsets.only(right: 10),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(15),
+              child: Image.asset(
+                'assets/images/squarelogo.png',
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+        ],
+      ),
+
+      body: Container(
+        color: AppColors.background,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            imageSearchContainer(
+              cityImage,
+              localityData?.localityName ?? "Locality Name",
+            ),
+            const SizedBox(height: 40),
+            scrollingContainer(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget scrollingContainer() {
+    return Expanded(
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            firstInfoCard(localityData!),
+            AboutContainerText(
+              title: cityName,
+              description: localityData!.description ?? "",
+            ),
+            SizedBox(height: 20),
+            aroundText(
+              "Around the ${localityData?.localityName ?? "Locality Name"}",
+            ),
+            SizedBox(height: 40),
+            aroundText(
+              "10 Points of ${localityData?.localityName ?? "Locality Name"}",
+            ),
+            SizedBox(height: 20),
+            TenPointsOfAnyCity(points: points),
+            SizedBox(height: 50),
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Row(
+                children: [
+                  sellRentButton(
+                    "Homes for Sales in ${localityData?.localityName ?? "Locality Name"}",
+                  ),
+                  const SizedBox(width: 8),
+                  sellRentButton(
+                    "Homes for Rent in ${localityData?.localityName ?? "Locality Name"}",
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 50),
+            TenPointImage(points: points),
+            SizedBox(height: 30),
+            aroundText("Other Neighbourhoods"),
+            SizedBox(height: 10),
+            Text("No Neighbourhood Available!"),
+            SizedBox(height: 30),
+            aroundText("Homes for Sale Near"),
+            SizedBox(height: 10),
+            Text("No Data Available"),
+            SizedBox(height: 30),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget imageSearchContainer(String imagePath, String hintTitle) {
+    return SizedBox(
+      width: double.infinity,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Card(
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(15),
+                bottomRight: Radius.circular(15),
+              ),
+            ),
+            elevation: 8,
+            child: ClipRRect(
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(15),
+                bottomRight: Radius.circular(15),
+              ),
+              child: imagePath.isNotEmpty
+                  ? Image.network(
+                      imagePath,
+                      fit: BoxFit.cover,
+                      height: 180,
+                      width: double.infinity,
+                    )
+                  : Container(height: 180, color: Colors.grey[300]),
+            ),
+          ),
+          Positioned(
+            left: 20,
+            top: 10,
+            right: 20,
+            child: RichText(
+              text: TextSpan(
+                text: 'Welcome To ',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+                children: [
+                  TextSpan(
+                    text: cityName,
+                    style: TextStyle(
+                      fontSize: 34,
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              softWrap: true,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget firstInfoCard(LocalityData data) {
+    final info = {
+      "Country": "India",
+      "State": data.state ?? "",
+      "Division": data.division ?? "",
+      "District": data.district ?? "",
+      "District Population": data.district_population ?? "",
+      "Coordinates": data.coordinates ?? "",
+      "Elevation": data.elevation ?? "",
+      "Area": data.area ?? "",
+      "City": data.city ?? "",
+    };
+
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.6),
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: Colors.amber.withOpacity(0.5), width: 1),
+      ),
+      child: Column(
+        children: info.entries.map((e) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    e.key,
+                    style: const TextStyle(
+                      color: Colors.amber,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Text(
+                    e.value,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget aroundText(String mainHeading) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          mainHeading,
+          style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+          textAlign: TextAlign.start,
+        ),
+        Container(height: 3, width: 100, color: AppColors.primary),
+      ],
+    );
+  }
+
+  Widget sellRentButton(String buttonText) {
+    return Expanded(
+      child: ElevatedButton(
+        onPressed: () {},
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          backgroundColor: AppColors.accent,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: Text(
+            buttonText,
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 2,
+            style: const TextStyle(color: Colors.white),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class AboutContainerText extends StatefulWidget {
+  final String title;
+  final String description;
+
+  const AboutContainerText({
+    super.key,
+    required this.title,
+    required this.description,
+  });
+
+  @override
+  State<AboutContainerText> createState() => _AboutContainerTextState();
+}
+
+class _AboutContainerTextState extends State<AboutContainerText> {
+  bool isExpanded = false;
+  late String collapsedText;
+
+  @override
+  void initState() {
+    super.initState();
+    collapsedText = _getCollapsedText(widget.description, 150); // 150 chars
+  }
+
+  // Strip HTML and truncate
+  String _getCollapsedText(String htmlString, int limit) {
+    final document = parse(htmlString);
+    final String parsedString =
+        parse(document.body?.text).documentElement?.text ?? '';
+    if (parsedString.length <= limit) return parsedString;
+    return parsedString.substring(0, limit) + "...";
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Know About ${widget.title}",
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              color: Color(0xFF0D1B2A),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Html(
+            data: isExpanded ? widget.description : collapsedText,
+            style: {
+              "body": Style(
+                fontSize: FontSize(14),
+                color: Colors.black87,
+                lineHeight: LineHeight.number(1),
+              ),
+            },
+          ),
+          InkWell(
+            onTap: () {
+              setState(() {
+                isExpanded = !isExpanded;
+              });
+            },
+            child: Text(
+              isExpanded ? "Read less" : "Read more",
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.blue,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class InfoCard extends StatelessWidget {
+  final String title;
+  final List<String> items;
+
+  const InfoCard({super.key, required this.title, required this.items});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        elevation: 5,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              Container(height: 3, width: 100, color: AppColors.primary),
+              SizedBox(height: 15),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: items.map((item) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Text(
+                      item,
+                      style: const TextStyle(color: Colors.grey, fontSize: 15),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class TenPointsOfAnyCity extends StatefulWidget {
+  final List<Point> points;
+
+  const TenPointsOfAnyCity({super.key, required this.points});
+
+  @override
+  State<TenPointsOfAnyCity> createState() => _TenPointsOfAnyCityState();
+}
+
+class _TenPointsOfAnyCityState extends State<TenPointsOfAnyCity> {
+  // Track expanded state for each description
+  final Map<int, bool> expandedMap = {};
+
+  bool showAll = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final visiblePoints = showAll ? widget.points.length : 5;
+
+    return Column(
+      children: [
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: visiblePoints,
+          itemBuilder: (context, index) {
+            final point = widget.points[index];
+            final isExpanded = expandedMap[index] ?? false;
+
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "${index + 1}",
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.secondary,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          point.title ?? "",
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+
+                        // Truncated description with ellipsis
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _stripHtmlTags(point.description ?? ""),
+                                  maxLines: isExpanded ? null : 3,
+                                  overflow: isExpanded
+                                      ? TextOverflow.visible
+                                      : TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey,
+                                    height: 1.3,
+                                  ),
+                                ),
+                                if ((point.description ?? "").isNotEmpty)
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        expandedMap[index] = !isExpanded;
+                                      });
+                                    },
+                                    child: Text(
+                                      isExpanded ? "See Less" : "See More",
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.blue,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+
+        const SizedBox(height: 8),
+
+        // 🔹 Bottom "See More Points / See Less Points"
+        Padding(
+          padding: const EdgeInsets.only(right: 20),
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  showAll = !showAll;
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.secondary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+              ),
+              child: Text(
+                showAll ? "See Less Points" : "See More Points",
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// 🔹 Helper: remove HTML tags so we can safely show plain text
+  String _stripHtmlTags(String htmlText) {
+    final regex = RegExp(r"<[^>]*>", multiLine: true, caseSensitive: true);
+    return htmlText.replaceAll(regex, "");
+  }
+}
+
+
+
+
+
+class TenPointImage extends StatefulWidget {
+  final List<Point> points;
+
+  const TenPointImage({super.key, required this.points});
+
+  @override
+  State<TenPointImage> createState() => _TenPointImageState();
+}
+
+class _TenPointImageState extends State<TenPointImage> {
+  bool showAll = false;
+
+  Widget networkImage(String? url, {double? height, double? width}) {
+    if (url == null || url.isEmpty || url.contains("Image to be updated")) {
+      return const SizedBox.shrink();
+    }
+
+    url = url.trim();
+
+    return Image.network(
+      url,
+      height: height,
+      width: width ?? double.infinity,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) {
+        return const SizedBox.shrink(); // also hide if error
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final visiblePoints = showAll ? widget.points.length : 5;
+
+    return Column(
+      children: [
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: visiblePoints,
+          itemBuilder: (context, index) {
+            final point = widget.points[index];
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  color: AppColors.primary,
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "${index + 1}".padLeft(2, '0'),
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              point.title ?? "No Title Available",
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.accent,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        height: 100,
+                        child: SingleChildScrollView(
+                          child: Html(
+                            data: point.description ?? "No Description Available",
+                            style: {
+                              "body": Style(
+                                fontSize: FontSize(14),
+                                color: Colors.black87,
+                                lineHeight: LineHeight.number(1.4),
+                              ),
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 5),
+
+                // Image 1
+                if (point.image_one != null &&
+                    point.image_one!.isNotEmpty &&
+                    !point.image_one!.contains("Image to be updated"))
+                  networkImage(point.image_one),
+
+                const SizedBox(height: 5),
+
+                // Image 2 & 3 in row (only show if available)
+                if ((point.image_two != null &&
+                    point.image_two!.isNotEmpty &&
+                    !point.image_two!.contains("Image to be updated")) ||
+                    (point.image_three != null &&
+                        point.image_three!.isNotEmpty &&
+                        !point.image_three!.contains("Image to be updated")))
+                  Row(
+                    children: [
+                      if (point.image_two != null &&
+                          point.image_two!.isNotEmpty &&
+                          !point.image_two!.contains("Image to be updated"))
+                        Expanded(child: networkImage(point.image_two, height: 180)),
+                      if (point.image_two != null &&
+                          point.image_two!.isNotEmpty &&
+                          !point.image_two!.contains("Image to be updated") &&
+                          point.image_three != null &&
+                          point.image_three!.isNotEmpty &&
+                          !point.image_three!.contains("Image to be updated"))
+                        const SizedBox(width: 5),
+                      if (point.image_three != null &&
+                          point.image_three!.isNotEmpty &&
+                          !point.image_three!.contains("Image to be updated"))
+                        Expanded(child: networkImage(point.image_three, height: 180)),
+                    ],
+                  ),
+
+                const SizedBox(height: 5),
+
+                // Image 4
+                if (point.image_four != null &&
+                    point.image_four!.isNotEmpty &&
+                    !point.image_four!.contains("Image to be updated"))
+                  networkImage(point.image_four),
+
+                const SizedBox(height: 20),
+              ],
+            );
+          },
+        ),
+        Padding(
+          padding: const EdgeInsets.only(right: 20),
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  showAll = !showAll;
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.secondary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+              ),
+              child: Text(
+                showAll ? "See Less" : "See All",
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
