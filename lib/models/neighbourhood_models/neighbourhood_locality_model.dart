@@ -31,6 +31,7 @@ class NeighbourhoodResponse {
 class LocalityData {
   final int? id;
   final String? localityName;
+  final String? slug;
   final String? state;
   final String? city;
   final String? division;
@@ -59,6 +60,7 @@ class LocalityData {
   LocalityData({
     this.id,
     this.localityName,
+    this.slug,
     this.state,
     this.city,
     this.division,
@@ -88,6 +90,7 @@ class LocalityData {
   factory LocalityData.fromJson(Map<String, dynamic> json) => LocalityData(
     id: json["id"],
     localityName: json["locality_name"],
+    slug: json['slug'],
     state: json["state"],
     city: json["city"],
     division: json["division"],
@@ -121,6 +124,7 @@ class LocalityData {
   Map<String, dynamic> toJson() => {
     "id": id,
     "locality_name": localityName,
+    "slug" : slug,
     "state": state,
     "city": city,
     "division": division,

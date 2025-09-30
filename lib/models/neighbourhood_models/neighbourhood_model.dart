@@ -56,9 +56,11 @@ class NeighbourhoodTitle {
 class NeighbourhoodData {
   final int id;
   final String city_name;
+  final String slug;
   final String city_image;
   final String show_on_page;
   final int show_on_locality;
+  final int neighbourhood_sequence;
   final String city_status;
   final int state;
   final DateTime created_at;
@@ -70,9 +72,11 @@ class NeighbourhoodData {
   NeighbourhoodData({
     required this.id,
     required this.city_name,
+    required this.slug,
     required this.city_image,
     required this.show_on_page,
     required this.show_on_locality,
+    required this.neighbourhood_sequence,
     required this.city_status,
     required this.state,
     required this.created_at,
@@ -86,9 +90,11 @@ class NeighbourhoodData {
       NeighbourhoodData(
         id: json["id"] ?? 0,
         city_name: json["city_name"] ?? "",
+        slug: json["slug"] ?? "",
         city_image: json["city_image"] ?? "",
         show_on_page: json["show_on_page"] ?? "0",
         show_on_locality: json["show_on_locality"] ?? 0,
+        neighbourhood_sequence: json["neighbourhood_sequence"] ?? 0,
         city_status: json["city_status"] ?? "0",
         state: json["state"] ?? 0,
         created_at: DateTime.tryParse(json["created_at"] ?? "") ?? DateTime.now(),

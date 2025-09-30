@@ -385,7 +385,7 @@ class NeighbourhoodMainGridViewCardItem extends StatelessWidget {
                   children: [
                     Flexible(
                       child: Text(
-                        formatCoordinates(null, longitude),
+                        formatCoordinates(latitude, null),
                         maxLines: 2,
                         softWrap: true,
                         overflow: TextOverflow.ellipsis,
@@ -402,7 +402,7 @@ class NeighbourhoodMainGridViewCardItem extends StatelessWidget {
 
                     Flexible(
                       child: Text(
-                        formatCoordinates(latitude, null),
+                        formatCoordinates(null, longitude),
                         maxLines: 2,
                         softWrap: true,
                         overflow: TextOverflow.ellipsis,
@@ -448,9 +448,10 @@ class NeighbourhoodMainCardGridView extends StatelessWidget {
               context,
               MaterialPageRoute(
                 builder: (_) =>
-                    NeighbourhoodSubScreen(cityId: place.id.toString()),
+                    NeighbourhoodSubScreen(citySlug: place.slug),
               ),
             );
+            print("Tap to Localities ${place.slug}");
           },
           child: NeighbourhoodMainGridViewCardItem(
             imagePath: place.city_image,

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:propusers/screens/home_screen.dart';
 import 'package:propusers/screens/profile_screen.dart';
 
 import '../theme/theme.dart';

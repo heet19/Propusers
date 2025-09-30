@@ -7,9 +7,9 @@ import '../theme/theme.dart';
 import 'package:flutter/material.dart';
 
 class NeighbourhoodDetailScreen extends StatefulWidget {
-  final String cityId;
+  final String citySlug;
 
-  const NeighbourhoodDetailScreen({super.key, required this.cityId});
+  const NeighbourhoodDetailScreen({super.key, required this.citySlug});
 
   @override
   State<NeighbourhoodDetailScreen> createState() =>
@@ -24,6 +24,9 @@ class _NeighbourhoodDetailScreenState extends State<NeighbourhoodDetailScreen> {
   bool isLoading = true;
   bool isError = false;
 
+  final GlobalKey _infoCardKey = GlobalKey();
+  double cardHeight = 0;
+
   @override
   void initState() {
     super.initState();
@@ -33,7 +36,7 @@ class _NeighbourhoodDetailScreenState extends State<NeighbourhoodDetailScreen> {
   Future<void> fetchLocalityDetail() async {
     try {
       final response = await RemoteService().getLocalityDetail(
-        widget.cityId,
+        widget.citySlug,
       ); // API call
       if (response != null && response.data != null) {
         setState(() {
@@ -43,6 +46,9 @@ class _NeighbourhoodDetailScreenState extends State<NeighbourhoodDetailScreen> {
           points = localityData?.points ?? [];
           isLoading = false;
         });
+
+        WidgetsBinding.instance.addPostFrameCallback((_) => _updateCardHeight());
+
       } else {
         setState(() {
           isError = true;
@@ -54,6 +60,16 @@ class _NeighbourhoodDetailScreenState extends State<NeighbourhoodDetailScreen> {
       setState(() {
         isError = true;
         isLoading = false;
+      });
+    }
+  }
+
+  void _updateCardHeight() {
+    if (_infoCardKey.currentContext != null) {
+      final RenderBox renderBox =
+      _infoCardKey.currentContext!.findRenderObject() as RenderBox;
+      setState(() {
+        cardHeight = renderBox.size.height;
       });
     }
   }
@@ -108,11 +124,6 @@ class _NeighbourhoodDetailScreenState extends State<NeighbourhoodDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            imageSearchContainer(
-              cityImage,
-              localityData?.localityName ?? "Locality Name",
-            ),
-            const SizedBox(height: 40),
             scrollingContainer(),
           ],
         ),
@@ -125,7 +136,70 @@ class _NeighbourhoodDetailScreenState extends State<NeighbourhoodDetailScreen> {
       child: SingleChildScrollView(
         child: Column(
           children: [
-            firstInfoCard(localityData!),
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                // Background Image
+                if (cityImage.isNotEmpty)
+                  Container(
+                    width: double.infinity,
+                    height: cardHeight > 0 ? cardHeight + 40 : 180,
+                    child: Image.network(
+                      cityImage,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          Container(color: Colors.grey[300]),
+                    ),
+                  )
+                else
+                  Container(
+                    width: double.infinity,
+                    height: cardHeight > 0 ? cardHeight + 40 : 180,
+                    color: Colors.grey[300],
+                  ),
+
+                // 🔹 Welcome Text (Top Left)
+                Positioned(
+                  left: 16,
+                  top: 16,
+                  child: RichText(
+                    text: TextSpan(
+                      text: 'Welcome to ',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        shadows: [
+                          Shadow(
+                            blurRadius: 6,
+                            color: Colors.black54,
+                            offset: Offset(2, 2),
+                          ),
+                        ],
+                      ),
+                      children: [
+                        TextSpan(
+                          text: cityName,
+                          style: const TextStyle(
+                            fontSize: 28,
+                            color: Colors.amber,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // Foreground Card
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16).copyWith(top: 80),
+                  child: firstInfoCard(localityData!),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 40),
             AboutContainerText(
               title: cityName,
               description: localityData!.description ?? "",
@@ -246,8 +320,8 @@ class _NeighbourhoodDetailScreenState extends State<NeighbourhoodDetailScreen> {
     };
 
     return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
         color: Colors.black.withOpacity(0.6),
         borderRadius: BorderRadius.circular(15),

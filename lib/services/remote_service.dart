@@ -39,12 +39,12 @@ class RemoteService {
     return null;
   }
 
-  Future<NeighbourhoodLocalitiesModel?> getNeighbourhoodLocalities(String city_id) async {
+  Future<NeighbourhoodLocalitiesModel?> getNeighbourhoodLocalities(String city_slug) async {
     var client = http.Client();
     var uri = Uri.parse('https://www.propusers.com/admin/api/localities');
     var response = await client.post(
       uri,
-      body: {"city_id": city_id},
+      body: {"city_slug": city_slug},
     );
     if (response.statusCode == 200) {
       return NeighbourhoodLocalitiesModelFromJson(response.body);

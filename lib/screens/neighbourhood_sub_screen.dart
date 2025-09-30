@@ -10,9 +10,9 @@ import '../utils/format_coordinates.dart';
 import '../widgets/search_bar_widget.dart';
 
 class NeighbourhoodSubScreen extends StatefulWidget {
-  final String cityId;
+  final String citySlug;
 
-  const NeighbourhoodSubScreen({Key? key, required this.cityId})
+  const NeighbourhoodSubScreen({Key? key, required this.citySlug})
     : super(key: key);
 
   @override
@@ -33,13 +33,13 @@ class _NeighbourhoodSubScreenState extends State<NeighbourhoodSubScreen> {
   @override
   void initState() {
     super.initState();
-    fetchLocalities(int.tryParse(widget.cityId) ?? 0);
+    fetchLocalities(widget.citySlug);
   }
 
-  Future<void> fetchLocalities(int city_id) async {
+  Future<void> fetchLocalities(String citySlug) async {
     setState(() => isLoadingLocalities = true);
     final model = await apiService.getNeighbourhoodLocalities(
-      city_id.toString(),
+      citySlug.toString(),
     );
     if (model != null) {
       localities = model.data;
@@ -50,7 +50,7 @@ class _NeighbourhoodSubScreenState extends State<NeighbourhoodSubScreen> {
         ),
       );
 
-      filteredLocalities = List.from(localities); // initially show all
+      filteredLocalities = List.from(localities);
       cityData = model.cityData;
     }
     setState(() => isLoadingLocalities = false);
@@ -483,7 +483,7 @@ class NeighbourhoodSubCardGridView extends StatelessWidget {
               context,
               MaterialPageRoute(
                 builder: (_) => NeighbourhoodDetailScreen(
-                  cityId: localitiesData.id.toString(),
+                  citySlug: localitiesData.slug.toString(),
                 ),
               ),
             );
