@@ -1,6 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:propusers/models/neighbourhood_models/neighbourhood_model.dart';
 import 'package:propusers/screens/neighbourhood_sub_screen.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../services/remote_service.dart';
 import '../theme/theme.dart';
@@ -251,37 +253,60 @@ Widget loadNetworkImage(
     );
   }
 
-  String fullPath = path.trim();
-  print("Loading image: $fullPath");
-
-
-  return Image.network(
-    fullPath,
+  return CachedNetworkImage(
+    imageUrl: path,
     height: height,
     width: width,
     fit: fit ?? BoxFit.cover,
-    loadingBuilder: (context, child, loadingProgress) {
-      if (loadingProgress == null) return child;
-      return Center(
-        child: CircularProgressIndicator(
-          value: loadingProgress.expectedTotalBytes != null
-              ? loadingProgress.cumulativeBytesLoaded /
-              loadingProgress.expectedTotalBytes!
-              : null,
-        ),
-      );
-    },
-    errorBuilder: (context, error, stackTrace) {
-      print("Failed to load: $fullPath, Error: $error");
-      return Image.asset(
-        errorAsset,
+    placeholder: (context, url) => Shimmer.fromColors(
+      baseColor: Colors.grey.shade300,
+      highlightColor: Colors.grey.shade100,
+      child: Container(
         height: height,
         width: width,
-        fit: fit,
-      );
-    },
+        color: Colors.grey.shade300,
+      ),
+    ),
+    errorWidget: (context, url, error) => Image.asset(
+      errorAsset,
+      height: height,
+      width: width,
+      fit: fit,
+    ),
   );
 }
+
+  // String fullPath = path.trim();
+  // print("Loading image: $fullPath");
+
+
+  // return Image.network(
+  //   fullPath,
+  //   height: height,
+  //   width: width,
+  //   fit: fit ?? BoxFit.cover,
+  //   loadingBuilder: (context, child, loadingProgress) {
+  //     if (loadingProgress == null) return child;
+  //     return Center(
+  //       child: CircularProgressIndicator(
+  //         value: loadingProgress.expectedTotalBytes != null
+  //             ? loadingProgress.cumulativeBytesLoaded /
+  //             loadingProgress.expectedTotalBytes!
+  //             : null,
+  //       ),
+  //     );
+  //   },
+  //   errorBuilder: (context, error, stackTrace) {
+  //     print("Failed to load: $fullPath, Error: $error");
+  //     return Image.asset(
+  //       errorAsset,
+  //       height: height,
+  //       width: width,
+  //       fit: fit,
+  //     );
+  //   },
+  // );
+// }
 
 
 class NeighbourhoodMainGridViewCardItem extends StatelessWidget {

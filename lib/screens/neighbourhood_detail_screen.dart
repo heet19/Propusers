@@ -194,12 +194,12 @@ class _NeighbourhoodDetailScreenState extends State<NeighbourhoodDetailScreen> {
         Positioned.fill(
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.4), // Dark overlay
+              color: Colors.black.withOpacity(0.3), // Dark overlay
             ),
             child: Image.network(
               cityImage,
               fit: BoxFit.cover,
-              color: Colors.black.withOpacity(0.5), // Darken the image itself
+              color: Colors.black.withOpacity(0.3),
               colorBlendMode: BlendMode.darken,
             ),
           ),
@@ -269,7 +269,6 @@ class _NeighbourhoodDetailScreenState extends State<NeighbourhoodDetailScreen> {
     };
 
     return Container(
-      // margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
         color: Colors.black.withOpacity(0.7),
@@ -647,7 +646,7 @@ class _TenPointsOfAnyCityState extends State<TenPointsOfAnyCity> {
     );
   }
 
-  /// 🔹 Helper: remove HTML tags so we can safely show plain text
+  ///  Helper: remove HTML tags so we can safely show plain text
   String _stripHtmlTags(String htmlText) {
     final regex = RegExp(r"<[^>]*>", multiLine: true, caseSensitive: true);
     return htmlText.replaceAll(regex, "");
@@ -699,7 +698,7 @@ class _TenPointImageState extends State<TenPointImage> {
 
     final visiblePoints = showAll
         ? widget.points.length
-        : widget.points.length.clamp(0, 5); // ✅ safe max 5
+        : widget.points.length.clamp(0, 5);
 
 
     return Column(
