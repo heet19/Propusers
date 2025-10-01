@@ -284,27 +284,6 @@ Widget loadNetworkImage(
 }
 
 
-
-// Robust image loader
-// Widget networkImage(String url, {double? height, double? width, BoxFit? fit}) {
-//   return FadeInImage.assetNetwork(
-//     placeholder: 'assets/images/null.jpg',
-//     image: url,
-//     height: height,
-//     width: width,
-//     fit: fit ?? BoxFit.cover,
-//     imageErrorBuilder: (context, error, stackTrace) {
-//       print("Failed to load image: $url");
-//       return Image.asset(
-//         'assets/images/error.jpg',
-//         height: height,
-//         width: width,
-//         fit: fit,
-//       );
-//     },
-//   );
-// }
-
 class NeighbourhoodMainGridViewCardItem extends StatelessWidget {
   final String imagePath;
   final String cityName;
