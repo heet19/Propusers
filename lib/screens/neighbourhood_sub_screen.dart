@@ -202,7 +202,7 @@ class _NeighbourhoodSubScreenState extends State<NeighbourhoodSubScreen> {
 
           // Overlay gradient for readability
           Container(
-            height: 220,
+            height: 180,
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(15),
@@ -252,6 +252,33 @@ class _NeighbourhoodSubScreenState extends State<NeighbourhoodSubScreen> {
             ),
           ),
 
+          Positioned(
+            left: 20,
+            bottom: 25,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Explore",
+                  style: const TextStyle(
+                    color: AppColors.primary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+
+                Text(
+                  cityName,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
           // Lat Long pill
           Positioned(
             bottom: 50,
@@ -275,24 +302,6 @@ class _NeighbourhoodSubScreenState extends State<NeighbourhoodSubScreen> {
                 ),
 
                 const SizedBox(height: 10),
-
-                Text(
-                  "Explore",
-                  style: const TextStyle(
-                    color: AppColors.primary,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-
-                Text(
-                  cityName,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
               ],
             ),
           ),

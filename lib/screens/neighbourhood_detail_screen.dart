@@ -6,6 +6,8 @@ import '../services/remote_service.dart';
 import '../theme/theme.dart';
 import 'package:flutter/material.dart';
 
+import '../utils/format_coordinates.dart';
+
 class NeighbourhoodDetailScreen extends StatefulWidget {
   final String citySlug;
 
@@ -47,8 +49,8 @@ class _NeighbourhoodDetailScreenState extends State<NeighbourhoodDetailScreen> {
           isLoading = false;
         });
 
-        WidgetsBinding.instance.addPostFrameCallback((_) => _updateCardHeight());
-
+        WidgetsBinding.instance.addPostFrameCallback((_) =>
+            _updateCardHeight());
       } else {
         setState(() {
           isError = true;
@@ -136,68 +138,7 @@ class _NeighbourhoodDetailScreenState extends State<NeighbourhoodDetailScreen> {
       child: SingleChildScrollView(
         child: Column(
           children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                // Background Image
-                if (cityImage.isNotEmpty)
-                  Container(
-                    width: double.infinity,
-                    height: cardHeight > 0 ? cardHeight + 40 : 180,
-                    child: Image.network(
-                      cityImage,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                          Container(color: Colors.grey[300]),
-                    ),
-                  )
-                else
-                  Container(
-                    width: double.infinity,
-                    height: cardHeight > 0 ? cardHeight + 40 : 180,
-                    color: Colors.grey[300],
-                  ),
-
-                // 🔹 Welcome Text (Top Left)
-                Positioned(
-                  left: 16,
-                  top: 16,
-                  child: RichText(
-                    text: TextSpan(
-                      text: 'Welcome to ',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        shadows: [
-                          Shadow(
-                            blurRadius: 6,
-                            color: Colors.black54,
-                            offset: Offset(2, 2),
-                          ),
-                        ],
-                      ),
-                      children: [
-                        TextSpan(
-                          text: cityName,
-                          style: const TextStyle(
-                            fontSize: 28,
-                            color: Colors.amber,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // Foreground Card
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 16).copyWith(top: 80),
-                  child: firstInfoCard(localityData!),
-                ),
-              ],
-            ),
+            infoSection(),
 
             const SizedBox(height: 40),
             AboutContainerText(
@@ -206,12 +147,10 @@ class _NeighbourhoodDetailScreenState extends State<NeighbourhoodDetailScreen> {
             ),
             SizedBox(height: 20),
             aroundText(
-              "Around the ${localityData?.localityName ?? "Locality Name"}",
-            ),
+                "Around the ${localityData?.localityName ?? "Locality Name"}"),
             SizedBox(height: 40),
             aroundText(
-              "10 Points of ${localityData?.localityName ?? "Locality Name"}",
-            ),
+              "10 Points of ${localityData?.localityName ?? "Locality Name"}",),
             SizedBox(height: 20),
             TenPointsOfAnyCity(points: points),
             SizedBox(height: 50),
@@ -220,11 +159,13 @@ class _NeighbourhoodDetailScreenState extends State<NeighbourhoodDetailScreen> {
               child: Row(
                 children: [
                   sellRentButton(
-                    "Homes for Sales in ${localityData?.localityName ?? "Locality Name"}",
+                    "Homes for Sales in ${localityData?.localityName ??
+                        "Locality Name"}",
                   ),
                   const SizedBox(width: 8),
                   sellRentButton(
-                    "Homes for Rent in ${localityData?.localityName ?? "Locality Name"}",
+                    "Homes for Rent in ${localityData?.localityName ??
+                        "Locality Name"}",
                   ),
                 ],
               ),
@@ -246,65 +187,73 @@ class _NeighbourhoodDetailScreenState extends State<NeighbourhoodDetailScreen> {
     );
   }
 
-  Widget imageSearchContainer(String imagePath, String hintTitle) {
-    return SizedBox(
-      width: double.infinity,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Card(
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(15),
-                bottomRight: Radius.circular(15),
-              ),
+  Widget infoSection() {
+    return Stack(
+      children: [
+        //  Background Image
+        Positioned.fill(
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.4), // Dark overlay
             ),
-            elevation: 8,
-            child: ClipRRect(
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(15),
-                bottomRight: Radius.circular(15),
-              ),
-              child: imagePath.isNotEmpty
-                  ? Image.network(
-                      imagePath,
-                      fit: BoxFit.cover,
-                      height: 180,
-                      width: double.infinity,
-                    )
-                  : Container(height: 180, color: Colors.grey[300]),
+            child: Image.network(
+              cityImage,
+              fit: BoxFit.cover,
+              color: Colors.black.withOpacity(0.5), // Darken the image itself
+              colorBlendMode: BlendMode.darken,
             ),
           ),
-          Positioned(
-            left: 20,
-            top: 10,
-            right: 20,
-            child: RichText(
-              text: TextSpan(
-                text: 'Welcome To ',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-                children: [
-                  TextSpan(
-                    text: cityName,
-                    style: TextStyle(
-                      fontSize: 34,
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.bold,
+        ),
+
+        // Overlay content
+        Column(
+          children: [
+            // Top-left Welcome Text
+            Align(
+              alignment: Alignment.topLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 20, top: 20),
+                child: RichText(
+                  text: TextSpan(
+                    text: "Welcome ",
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
                     ),
+                    children: [
+                      TextSpan(
+                        text: "to ${cityName.isNotEmpty ? cityName : "City"}",
+                        style: const TextStyle(
+                          color: Colors.amber,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-              softWrap: true,
             ),
-          ),
-        ],
-      ),
+
+            const SizedBox(height: 50), // spacing for card
+
+            // Info Card
+            Align(
+              alignment: Alignment.center,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: firstInfoCard(localityData!),
+              ),
+            ),
+
+            const SizedBox(height: 50),
+          ],
+        ),
+      ],
     );
   }
+  }
+
 
   Widget firstInfoCard(LocalityData data) {
     final info = {
@@ -313,21 +262,22 @@ class _NeighbourhoodDetailScreenState extends State<NeighbourhoodDetailScreen> {
       "Division": data.division ?? "",
       "District": data.district ?? "",
       "District Population": data.district_population ?? "",
-      "Coordinates": data.coordinates ?? "",
+      "Coordinates": (data.latitude != null && data.longitude != null) ? formatCoordinates(data.latitude!, data.longitude!) : "",
       "Elevation": data.elevation ?? "",
       "Area": data.area ?? "",
       "City": data.city ?? "",
     };
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      // margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.6),
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.amber.withOpacity(0.5), width: 1),
+        color: Colors.black.withOpacity(0.7),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.amber.withOpacity(0.6), width: 1),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: info.entries.map((e) {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 6),
@@ -348,7 +298,7 @@ class _NeighbourhoodDetailScreenState extends State<NeighbourhoodDetailScreen> {
                 Expanded(
                   flex: 3,
                   child: Text(
-                    e.value,
+                    e.value.isNotEmpty ? e.value : "—",
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w500,
@@ -400,7 +350,7 @@ class _NeighbourhoodDetailScreenState extends State<NeighbourhoodDetailScreen> {
       ),
     );
   }
-}
+
 
 class AboutContainerText extends StatefulWidget {
   final String title;
@@ -419,11 +369,13 @@ class AboutContainerText extends StatefulWidget {
 class _AboutContainerTextState extends State<AboutContainerText> {
   bool isExpanded = false;
   late String collapsedText;
+  bool showReadMore = false;
 
   @override
   void initState() {
     super.initState();
     collapsedText = _getCollapsedText(widget.description, 150); // 150 chars
+    showReadMore = _needsReadMore(widget.description);
   }
 
   // Strip HTML and truncate
@@ -433,6 +385,27 @@ class _AboutContainerTextState extends State<AboutContainerText> {
         parse(document.body?.text).documentElement?.text ?? '';
     if (parsedString.length <= limit) return parsedString;
     return parsedString.substring(0, limit) + "...";
+  }
+
+  // Check if text exceeds 3 lines
+  bool _needsReadMore(String htmlString) {
+    final document = parse(htmlString);
+    final String text = parse(document.body?.text).documentElement?.text ?? '';
+
+    // TextPainter measures the number of lines
+    final TextPainter textPainter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: const TextStyle(
+          fontSize: 14,
+          height: 1, // lineHeight
+        ),
+      ),
+      maxLines: 3,
+      textDirection: TextDirection.ltr,
+    )..layout(maxWidth: 400); // maxWidth depends on your layout
+
+    return textPainter.didExceedMaxLines;
   }
 
   @override
@@ -461,21 +434,22 @@ class _AboutContainerTextState extends State<AboutContainerText> {
               ),
             },
           ),
-          InkWell(
-            onTap: () {
-              setState(() {
-                isExpanded = !isExpanded;
-              });
-            },
-            child: Text(
-              isExpanded ? "Read less" : "Read more",
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.blue,
-                fontWeight: FontWeight.w500,
+          if (showReadMore) // Only show if needed
+            InkWell(
+              onTap: () {
+                setState(() {
+                  isExpanded = !isExpanded;
+                });
+              },
+              child: Text(
+                isExpanded ? "Read less" : "Read more",
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.blue,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
-          ),
         ],
       ),
     );
@@ -545,7 +519,10 @@ class _TenPointsOfAnyCityState extends State<TenPointsOfAnyCity> {
 
   @override
   Widget build(BuildContext context) {
-    final visiblePoints = showAll ? widget.points.length : 5;
+    final visiblePoints = showAll
+        ? widget.points.length
+        : widget.points.length.clamp(
+        0, 5); //  max 5, but not more than available
 
     return Column(
       children: [
@@ -634,7 +611,7 @@ class _TenPointsOfAnyCityState extends State<TenPointsOfAnyCity> {
 
         const SizedBox(height: 8),
 
-        // 🔹 Bottom "See More Points / See Less Points"
+        //  Bottom "See More Points / See Less Points"
         Padding(
           padding: const EdgeInsets.only(right: 20),
           child: Align(
@@ -678,9 +655,6 @@ class _TenPointsOfAnyCityState extends State<TenPointsOfAnyCity> {
 }
 
 
-
-
-
 class TenPointImage extends StatefulWidget {
   final List<Point> points;
 
@@ -713,7 +687,20 @@ class _TenPointImageState extends State<TenPointImage> {
 
   @override
   Widget build(BuildContext context) {
-    final visiblePoints = showAll ? widget.points.length : 5;
+    if (widget.points.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.all(20.0),
+        child: Text(
+          "No points available.",
+          style: TextStyle(color: Colors.black54, fontSize: 16),
+        ),
+      );
+    }
+
+    final visiblePoints = showAll
+        ? widget.points.length
+        : widget.points.length.clamp(0, 5); // ✅ safe max 5
+
 
     return Column(
       children: [
@@ -761,7 +748,8 @@ class _TenPointImageState extends State<TenPointImage> {
                         height: 100,
                         child: SingleChildScrollView(
                           child: Html(
-                            data: point.description ?? "No Description Available",
+                            data: point.description ??
+                                "No Description Available",
                             style: {
                               "body": Style(
                                 fontSize: FontSize(14),
@@ -797,7 +785,8 @@ class _TenPointImageState extends State<TenPointImage> {
                       if (point.image_two != null &&
                           point.image_two!.isNotEmpty &&
                           !point.image_two!.contains("Image to be updated"))
-                        Expanded(child: networkImage(point.image_two, height: 180)),
+                        Expanded(
+                            child: networkImage(point.image_two, height: 180)),
                       if (point.image_two != null &&
                           point.image_two!.isNotEmpty &&
                           !point.image_two!.contains("Image to be updated") &&
@@ -808,7 +797,8 @@ class _TenPointImageState extends State<TenPointImage> {
                       if (point.image_three != null &&
                           point.image_three!.isNotEmpty &&
                           !point.image_three!.contains("Image to be updated"))
-                        Expanded(child: networkImage(point.image_three, height: 180)),
+                        Expanded(child: networkImage(
+                            point.image_three, height: 180)),
                     ],
                   ),
 
@@ -825,37 +815,38 @@ class _TenPointImageState extends State<TenPointImage> {
             );
           },
         ),
-        Padding(
-          padding: const EdgeInsets.only(right: 20),
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  showAll = !showAll;
-                });
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.secondary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+        if (widget.points.length > 5)
+          Padding(
+            padding: const EdgeInsets.only(right: 20),
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    showAll = !showAll;
+                  });
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.secondary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
                 ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
-                ),
-              ),
-              child: Text(
-                showAll ? "See Less" : "See All",
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                child: Text(
+                  showAll ? "See Less" : "See All",
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
           ),
-        ),
       ],
     );
   }
