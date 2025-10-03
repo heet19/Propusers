@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:propusers/screens/about_us_screen.dart';
 import 'package:propusers/screens/neighbourhood_main_screen.dart';
 import 'package:propusers/screens/privacy_policy_screen.dart';
 import 'package:propusers/screens/profile_screen.dart';
@@ -89,6 +90,12 @@ class _MoreScreenState extends State<MoreScreen> {
       "svgPath": "assets/icons/joinpropenure.svg",
       "title": "Proprenuer",
       "iconColor": const Color(0xFFF2C94C),
+    },
+    {
+      "svgPath": "assets/icons/about_us.svg",
+      "title": "About Us",
+      "iconColor": const Color(0xFFF2C94C),
+      "route": AboutUsScreen(),
     },
     {
       "svgPath": "assets/icons/propsamadhan.svg",
