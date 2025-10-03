@@ -1,6 +1,7 @@
 import 'package:propusers/models/privacy_policy_models/privacy_policy_terms_and_conditions_model.dart';
 import 'package:http/http.dart' as http;
 
+import '../models/about_us_models/about_us_model.dart';
 import '../models/neighbourhood_models/neighbourhood_localities_model.dart';
 import '../models/neighbourhood_models/neighbourhood_locality_model.dart';
 import '../models/neighbourhood_models/neighbourhood_model.dart';
@@ -66,6 +67,27 @@ class RemoteService {
       }
     } catch (e) {
       print("Error fetching locality detail: $e");
+      return null;
+    } finally {
+      client.close();
+    }
+  }
+
+  Future<AboutUsModel?> getAboutUs() async {
+    var client = http.Client();
+    var uri = Uri.parse('https://www.propusers.com/admin/api/aboutPage');
+
+    try {
+      var response = await client.get(uri);
+
+      if (response.statusCode == 200) {
+        return aboutUsModelFromJson(response.body);
+      } else {
+        print("Error fetching AboutUs: ${response.statusCode}");
+        return null;
+      }
+    } catch (e) {
+      print("Exception in getAboutUs: $e");
       return null;
     } finally {
       client.close();
