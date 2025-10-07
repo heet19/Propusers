@@ -136,7 +136,6 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
     // Convert proprenuers to list of image URLs
     List<Proprenuer> proprenuers = aboutUs?.topProprenuer?.proprenuers ?? [];
 
-
     return Container(
       color: Color(0xFFFDF3D8),
       padding: const EdgeInsets.all(10),
@@ -224,8 +223,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
       ),
     );
   }
-
-
+  
 }
 
 class TitleText extends StatelessWidget {
