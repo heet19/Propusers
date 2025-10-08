@@ -6,6 +6,7 @@ import '../models/management_models/management_model.dart';
 import '../models/neighbourhood_models/neighbourhood_localities_model.dart';
 import '../models/neighbourhood_models/neighbourhood_locality_model.dart';
 import '../models/neighbourhood_models/neighbourhood_model.dart';
+import '../models/office_locations_models/office_locations_model.dart';
 
 class RemoteService {
   Future<PrivacyPolicyTermsAndConditionsModel?> getPrivacyPolicy() async {
@@ -111,6 +112,28 @@ class RemoteService {
       }
     } catch (e) {
       print("Exception in getManagementTeam: $e");
+      return null;
+    } finally {
+      client.close();
+    }
+  }
+
+  Future<OfficeLocationModel?> getOfficeLocations() async {
+    var client = http.Client();
+    var uri = Uri.parse('https://www.propusers.com/admin/api/officeLocations');
+
+    try {
+      var response = await client.get(uri);
+
+      if (response.statusCode == 200) {
+        return officeLocationModelFromJson(response.body);
+      } else {
+        print("Error fetching Office Locations: ${response.statusCode}");
+        print("Response body: ${response.body}");
+        return null;
+      }
+    } catch (e) {
+      print("Exception in getOfficeLocations: $e");
       return null;
     } finally {
       client.close();

@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:propusers/screens/about_us_screen.dart';
 import 'package:propusers/screens/management_screen.dart';
 import 'package:propusers/screens/neighbourhood_main_screen.dart';
+import 'package:propusers/screens/office_location_screen.dart';
 import 'package:propusers/screens/privacy_policy_screen.dart';
 import 'package:propusers/screens/profile_screen.dart';
 import 'package:propusers/screens/terms_and_conditions_screen.dart';
@@ -93,6 +94,11 @@ class _MoreScreenState extends State<MoreScreen> {
       "iconColor": const Color(0xFFF2C94C),
     },
     {
+      "svgPath": "assets/icons/propsamadhan.svg",
+      "title": "Settings",
+      "iconColor": const Color(0xFFF2C94C),
+    },
+    {
       "svgPath": "assets/icons/about_us.svg",
       "title": "About Us",
       "iconColor": const Color(0xFFF2C94C),
@@ -105,9 +111,10 @@ class _MoreScreenState extends State<MoreScreen> {
       "route": ManagementScreen(),
     },
     {
-      "svgPath": "assets/icons/propsamadhan.svg",
-      "title": "Settings",
+      "svgPath": "assets/icons/location.svg",
+      "title": "Office Location",
       "iconColor": const Color(0xFFF2C94C),
+      "route": OfficeLocationScreen(),
     },
   ];
 
