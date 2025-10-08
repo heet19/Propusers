@@ -312,16 +312,22 @@ class ReusableCard extends StatelessWidget {
   });
 
   // Function to open link if available
-  void _launchURL(String? url) async {
-    if (url != null && url.isNotEmpty) {
-      final uri = Uri.parse(url);
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else {
-        print("Could not launch $url");
-      }
-    } else {
+  Future<void> _launchURL(String? url) async {
+    if (url == null || url.isEmpty) {
       print("Link not available");
+      return;
+    }
+
+    final Uri uri = Uri.parse(url);
+
+    try {
+      // Try external application first
+      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+        // fallback: open in browser
+        await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
+      }
+    } catch (e) {
+      print("Could not launch $url — $e");
     }
   }
 

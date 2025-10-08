@@ -105,16 +105,22 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
   }
 
   // Function to open link if available
-  void _launchURL(String? url) async {
-    if (url != null && url.isNotEmpty) {
-      final uri = Uri.parse(url);
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else {
-        print("Could not launch $url");
-      }
-    } else {
+  Future<void> _launchURL(String? url) async {
+    if (url == null || url.isEmpty) {
       print("Link not available");
+      return;
+    }
+
+    final Uri uri = Uri.parse(url);
+
+    try {
+      // Try external application first
+      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+        // fallback: open in browser
+        await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
+      }
+    } catch (e) {
+      print("Could not launch $url — $e");
     }
   }
 
@@ -183,6 +189,48 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
     );
   }
 
+// Launch Email (with fallback to Gmail web)
+  Future<void> _launchEmail(String? email) async {
+    if (email == null || email.isEmpty) {
+      print("Email not available");
+      return;
+    }
+
+    final Uri emailUri = Uri(scheme: 'mailto', path: email.trim());
+    try {
+      if (!await launchUrl(emailUri, mode: LaunchMode.externalApplication)) {
+        // Fallback to Gmail web compose
+        final gmailUri = Uri.parse(
+            "https://mail.google.com/mail/?view=cm&fs=1&to=${email.trim()}");
+        if (!await launchUrl(gmailUri, mode: LaunchMode.externalApplication)) {
+          await launchUrl(gmailUri, mode: LaunchMode.inAppBrowserView);
+        }
+      }
+    } catch (e) {
+      print("Could not launch email for $email — $e");
+    }
+  }
+
+// Launch Phone (with fallback to Snackbar)
+  Future<void> _launchPhone(String? phone) async {
+    if (phone == null || phone.isEmpty) {
+      print("Phone number not available");
+      return;
+    }
+
+    final Uri phoneUri = Uri(scheme: 'tel', path: phone.trim());
+    try {
+      if (!await launchUrl(phoneUri, mode: LaunchMode.externalApplication)) {
+        // fallback: show message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("No dialer app available to call $phone")),
+        );
+      }
+    } catch (e) {
+      print("Could not launch phone for $phone — $e");
+    }
+  }
+
   Widget contactItems() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -192,6 +240,7 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
           text: widget.member.email ?? 'No E-mail Found',
           onTap: () {
             print("Email clicked!");
+            _launchEmail(widget.member.email);
             // You can also launch mailto link
           },
         ),
@@ -201,6 +250,7 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
           text: widget.member.contact ?? 'No Contact Found',
           onTap: () {
             print("Phone clicked!");
+            _launchPhone(widget.member.contact);
             // You can launch tel: link here
           },
         ),
