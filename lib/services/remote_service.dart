@@ -2,6 +2,7 @@ import 'package:propusers/models/privacy_policy_models/privacy_policy_terms_and_
 import 'package:http/http.dart' as http;
 
 import '../models/about_us_models/about_us_model.dart';
+import '../models/contact_us_models/contact_us_model.dart';
 import '../models/management_models/management_model.dart';
 import '../models/neighbourhood_models/neighbourhood_localities_model.dart';
 import '../models/neighbourhood_models/neighbourhood_locality_model.dart';
@@ -139,5 +140,28 @@ class RemoteService {
       client.close();
     }
   }
+
+  Future<ContactUsModel?> getContactUs() async {
+    var client = http.Client();
+    var uri = Uri.parse('https://www.propusers.com/admin/api/contactUsData');
+
+    try {
+      var response = await client.get(uri);
+
+      if (response.statusCode == 200) {
+        return contactUsModelFromJson(response.body);
+      } else {
+        print("Error fetching Contact Us: ${response.statusCode}");
+        print("Response body: ${response.body}");
+        return null;
+      }
+    } catch (e) {
+      print("Exception in getContactUs: $e");
+      return null;
+    } finally {
+      client.close();
+    }
+  }
+
 
 }

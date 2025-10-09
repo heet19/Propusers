@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:propusers/screens/about_us_screen.dart';
+import 'package:propusers/screens/contact_us_data_screen.dart';
 import 'package:propusers/screens/management_screen.dart';
 import 'package:propusers/screens/neighbourhood_main_screen.dart';
 import 'package:propusers/screens/office_location_screen.dart';
@@ -115,6 +116,12 @@ class _MoreScreenState extends State<MoreScreen> {
       "title": "Office Location",
       "iconColor": const Color(0xFFF2C94C),
       "route": OfficeLocationScreen(),
+    },
+    {
+      "svgPath": "assets/icons/call.svg",
+      "title": "Contact Us",
+      "iconColor": const Color(0xFFF2C94C),
+      "route": ContactUsScreen(),
     },
   ];
 
