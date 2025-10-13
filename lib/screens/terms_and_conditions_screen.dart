@@ -94,8 +94,7 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen> {
             ),
           ],
         ),
-      )
-          : Center(
+      ) : Center(
         child: CircularProgressIndicator(
           color: AppColors.primary,
         ),

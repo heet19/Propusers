@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:propusers/screens/about_us_screen.dart';
-import 'package:propusers/screens/contact_us_data_screen.dart';
+import 'package:propusers/screens/contact_us_screen.dart';
 import 'package:propusers/screens/management_screen.dart';
 import 'package:propusers/screens/neighbourhood_main_screen.dart';
 import 'package:propusers/screens/office_location_screen.dart';
 import 'package:propusers/screens/privacy_policy_screen.dart';
 import 'package:propusers/screens/profile_screen.dart';
+import 'package:propusers/screens/propreneur_experience_screen.dart';
 import 'package:propusers/screens/terms_and_conditions_screen.dart';
 import '../theme/theme.dart';
 import '../widgets/app_bar.dart';
@@ -122,6 +123,12 @@ class _MoreScreenState extends State<MoreScreen> {
       "title": "Contact Us",
       "iconColor": const Color(0xFFF2C94C),
       "route": ContactUsScreen(),
+    },
+    {
+      "svgPath": "assets/icons/joinpropenure.svg",
+      "title": "Propreneur Experience",
+      "iconColor": const Color(0xFFF2C94C),
+      "route": PropreneurExperienceScreen(),
     },
   ];
 

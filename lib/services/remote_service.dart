@@ -8,6 +8,7 @@ import '../models/neighbourhood_models/neighbourhood_localities_model.dart';
 import '../models/neighbourhood_models/neighbourhood_locality_model.dart';
 import '../models/neighbourhood_models/neighbourhood_model.dart';
 import '../models/office_locations_models/office_locations_model.dart';
+import '../models/propreneur_experience_models/propreneur_experience_model.dart';
 
 class RemoteService {
   Future<PrivacyPolicyTermsAndConditionsModel?> getPrivacyPolicy() async {
@@ -157,6 +158,28 @@ class RemoteService {
       }
     } catch (e) {
       print("Exception in getContactUs: $e");
+      return null;
+    } finally {
+      client.close();
+    }
+  }
+
+  Future<PropreneurExperienceModel?> getPropreneurExperience() async {
+    var client = http.Client();
+    var uri = Uri.parse('https://www.propusers.com/admin/api/ExperienceData');
+
+    try {
+      var response = await client.get(uri);
+
+      if (response.statusCode == 200) {
+        return propreneurExperienceModelFromJson(response.body);
+      } else {
+        print("Error fetching Propreneur Experience: ${response.statusCode}");
+        print("Response body: ${response.body}");
+        return null;
+      }
+    } catch (e) {
+      print("Exception in getPropreneurExperience: $e");
       return null;
     } finally {
       client.close();
