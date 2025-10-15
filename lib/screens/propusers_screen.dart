@@ -5,6 +5,23 @@ import '../theme/theme.dart';
 import '../widgets/app_bar.dart';
 
 class PropusersScreen extends StatefulWidget {
+  final String name;
+  final String email;
+  final String password;
+  final String contact;
+  final String city;
+  final String type;
+
+  const PropusersScreen({
+    super.key,
+    required this.name,
+    required this.email,
+    required this.password,
+    required this.contact,
+    required this.city,
+    required this.type,
+  });
+
   @override
   State<PropusersScreen> createState() => _PropusersScreenState();
 }
@@ -77,7 +94,7 @@ class _PropusersScreenState extends State<PropusersScreen> {
 
       body: Center(
         child: Text(
-          "Propusers Screen",
+          "Hello, ${widget.name}",
           style: TextStyle(fontSize: 34, fontWeight: FontWeight.w800),
         ),
       ),

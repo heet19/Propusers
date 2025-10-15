@@ -13,8 +13,7 @@ import '../widgets/search_bar_widget.dart';
 
 class NeighbourhoodMainScreen extends StatefulWidget {
   @override
-  State<NeighbourhoodMainScreen> createState() =>
-      _NeighbourhoodMainScreenState();
+  State<NeighbourhoodMainScreen> createState() => _NeighbourhoodMainScreenState();
 }
 
 class _NeighbourhoodMainScreenState extends State<NeighbourhoodMainScreen> {
@@ -47,21 +46,13 @@ class _NeighbourhoodMainScreenState extends State<NeighbourhoodMainScreen> {
 
   void filterSearch(String query) {
     if (query.isEmpty) {
-      setState(() {
-        filteredData = List.from(neighbourhood!.data);
-      });
+      setState(() { filteredData = List.from(neighbourhood!.data);});
     } else {
       setState(() {
         filteredData = neighbourhood!.data
-            .where(
-              (item) =>
-                  item.city_name.toLowerCase().contains(query.toLowerCase()),
-            )
+            .where((item) => item.city_name.toLowerCase().contains(query.toLowerCase()),)
             .toList();
-        filteredData.sort(
-          (a, b) =>
-              a.city_name.toLowerCase().compareTo(b.city_name.toLowerCase()),
-        );
+        filteredData.sort((a, b) => a.city_name.toLowerCase().compareTo(b.city_name.toLowerCase()),);
       });
     }
   }
@@ -234,15 +225,14 @@ class _NeighbourhoodMainScreenState extends State<NeighbourhoodMainScreen> {
   }
 }
 
-
 Widget loadNetworkImage(
-    String? path, {
-      double? height,
-      double? width,
-      BoxFit? fit,
-      String placeholderAsset = "assets/images/null.jpg",
-      String errorAsset = "assets/images/error.jpg",
-    }) {
+  String? path, {
+  double? height,
+  double? width,
+  BoxFit? fit,
+  String placeholderAsset = "assets/images/null.jpg",
+  String errorAsset = "assets/images/error.jpg",
+}) {
   if (path == null || path.isEmpty) {
     // If path is null or empty, show placeholder
     return Image.asset(
@@ -267,46 +257,9 @@ Widget loadNetworkImage(
         color: Colors.grey.shade300,
       ),
     ),
-    errorWidget: (context, url, error) => Image.asset(
-      errorAsset,
-      height: height,
-      width: width,
-      fit: fit,
-    ),
+    errorWidget: (context, url, error) => Image.asset(errorAsset, height: height, width: width, fit: fit),
   );
 }
-
-  // String fullPath = path.trim();
-  // print("Loading image: $fullPath");
-
-
-  // return Image.network(
-  //   fullPath,
-  //   height: height,
-  //   width: width,
-  //   fit: fit ?? BoxFit.cover,
-  //   loadingBuilder: (context, child, loadingProgress) {
-  //     if (loadingProgress == null) return child;
-  //     return Center(
-  //       child: CircularProgressIndicator(
-  //         value: loadingProgress.expectedTotalBytes != null
-  //             ? loadingProgress.cumulativeBytesLoaded /
-  //             loadingProgress.expectedTotalBytes!
-  //             : null,
-  //       ),
-  //     );
-  //   },
-  //   errorBuilder: (context, error, stackTrace) {
-  //     print("Failed to load: $fullPath, Error: $error");
-  //     return Image.asset(
-  //       errorAsset,
-  //       height: height,
-  //       width: width,
-  //       fit: fit,
-  //     );
-  //   },
-  // );
-// }
 
 
 class NeighbourhoodMainGridViewCardItem extends StatelessWidget {
@@ -331,13 +284,6 @@ class NeighbourhoodMainGridViewCardItem extends StatelessWidget {
       elevation: 5,
       child: Stack(
         children: [
-          // networkImage(
-          //   imagePath,
-          //   height: 200,
-          //   width: double.infinity,
-          //   fit: BoxFit.cover,
-          // ),
-
           loadNetworkImage(
             imagePath,
             height: 200,
@@ -345,7 +291,7 @@ class NeighbourhoodMainGridViewCardItem extends StatelessWidget {
             fit: BoxFit.cover,
           ),
 
-      Container(
+          Container(
             height: 200,
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -451,8 +397,7 @@ class NeighbourhoodMainCardGridView extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) =>
-                    NeighbourhoodSubScreen(citySlug: place.slug),
+                builder: (_) => NeighbourhoodSubScreen(citySlug: place.slug),
               ),
             );
             print("Tap to Localities ${place.slug}");

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:propusers/models/privacy_policy_models/privacy_policy_terms_and_conditions_model.dart';
 import 'package:http/http.dart' as http;
 
@@ -9,6 +11,7 @@ import '../models/neighbourhood_models/neighbourhood_locality_model.dart';
 import '../models/neighbourhood_models/neighbourhood_model.dart';
 import '../models/office_locations_models/office_locations_model.dart';
 import '../models/propreneur_experience_models/propreneur_experience_model.dart';
+import '../models/proprenuer_dropdown_models/proprenuer_dropdown_model.dart';
 
 class RemoteService {
   Future<PrivacyPolicyTermsAndConditionsModel?> getPrivacyPolicy() async {
@@ -44,13 +47,12 @@ class RemoteService {
     return null;
   }
 
-  Future<NeighbourhoodLocalitiesModel?> getNeighbourhoodLocalities(String city_slug) async {
+  Future<NeighbourhoodLocalitiesModel?> getNeighbourhoodLocalities(
+    String city_slug,
+  ) async {
     var client = http.Client();
     var uri = Uri.parse('https://www.propusers.com/admin/api/localities');
-    var response = await client.post(
-      uri,
-      body: {"city_slug": city_slug},
-    );
+    var response = await client.post(uri, body: {"city_slug": city_slug});
     if (response.statusCode == 200) {
       return NeighbourhoodLocalitiesModelFromJson(response.body);
     }
@@ -183,6 +185,101 @@ class RemoteService {
       return null;
     } finally {
       client.close();
+    }
+  }
+
+  Future<ProprenuerDropdownModel?> getProprenuerDropdown() async {
+    var client = http.Client();
+    var uri = Uri.parse(
+      'https://www.propusers.com/admin/api/ProprenuerDropdown',
+    );
+
+    try {
+      var response = await client.get(uri);
+
+      if (response.statusCode == 200) {
+        return proprenuerDropdownModelFromJson(response.body);
+      } else {
+        print("Error fetching Proprenuer Dropdown: ${response.statusCode}");
+        print("Response body: ${response.body}");
+        return null;
+      }
+    } catch (e) {
+      print("Exception in getProprenuerDropdown: $e");
+      return null;
+    } finally {
+      client.close();
+    }
+  }
+
+  Future<Map<String, dynamic>?> signUp({
+    required String name,
+    required String email,
+    required String password,
+    required String contact,
+    required String city,
+    required String type,
+  }) async {
+    try {
+      final url = Uri.parse('https://staging.propusers.com/admin/api/signUp');
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: {
+          'name': name,
+          'email': email,
+          'password': password,
+          'contact': contact,
+          'city': city,
+          'type': type,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data;
+      } else {
+        print('Signup failed: ${response.statusCode}');
+        print(response.body);
+        return {
+          "success": false,
+          "error": "Something went wrong (${response.statusCode})"
+        };
+      }
+    } catch (e) {
+      print('Error during signup: $e');
+      return {"success": false, "error": e.toString()};
+    }
+  }
+
+  Future<Map<String, dynamic>?> resendOtp({required String email, required String type}) async {
+    try {
+      final url = Uri.parse('https://staging.propusers.com/admin/api/resendOtp?email=$email&type=$type');
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data;
+      } else {
+        print('Resend OTP failed: ${response.statusCode}');
+        print(response.body);
+        return {
+          "success": false,
+          "error": "Something went wrong (${response.statusCode})"
+        };
+      }
+    } catch (e) {
+      print('Error during resend OTP: $e');
+      return {"success": false, "error": e.toString()};
     }
   }
 

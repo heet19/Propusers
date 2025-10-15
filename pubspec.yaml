@@ -43,6 +43,7 @@ dependencies:
   flutter_html: ^3.0.0
   html: ^0.15.6
   carousel_slider: ^5.1.1
+  dropdown_search: ^6.0.2
 
 dev_dependencies:
   flutter_test:

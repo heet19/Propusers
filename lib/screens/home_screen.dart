@@ -6,6 +6,15 @@ import 'package:propusers/screens/top_cities_screen.dart';
 import 'package:propusers/theme/theme.dart';
 
 class HomeScreen extends StatefulWidget {
+  final String name;
+  final String email;
+  final String password;
+  final String contact;
+  final String city;
+  final String type;
+
+  const HomeScreen({super.key, required this.name, required this.email, required this.password, required this.contact, required this.city, required this.type}); // ✅ constructor added
+
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -23,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     List<Widget> widgetList = [
-      PropusersScreen(),
+      PropusersScreen(name: widget.name, email: widget.email, password: widget.password, contact: widget.contact, city: widget.city, type: widget.type),
       TopCitiesScreen(changeTab: changeTab),
       CollectionScreen(changeTab: changeTab),
       MoreScreen(changeTab: changeTab),
@@ -52,4 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+
+
 }
