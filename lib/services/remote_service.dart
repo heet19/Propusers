@@ -283,5 +283,39 @@ class RemoteService {
     }
   }
 
+  /// Sign In API (POST)
+  Future<Map<String, dynamic>> signIn({required String email, required String password, required int type}) async {
+    final url = Uri.parse('https://staging.propusers.com/admin/api/signIn');
+
+    try {
+      final response = await http.post(
+        url,
+        body: {
+          'email': email,
+          'password': password,
+          'type' : type.toString()
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return {
+          'success': true,
+          'data': data,
+        };
+      } else {
+        return {
+          'success': false,
+          'message': 'Failed with status code ${response.statusCode}',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Error: $e',
+      };
+    }
+  }
+
 
 }

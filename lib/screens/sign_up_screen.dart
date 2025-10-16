@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:propusers/screens/privacy_policy_screen.dart';
+import 'package:propusers/screens/sign_in_screen.dart';
 import 'package:propusers/screens/terms_and_conditions_screen.dart';
 import 'package:propusers/screens/verify_code_screen.dart';
 import '../services/remote_service.dart';
@@ -346,6 +347,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                   ),
                 ),
+
+                SizedBox(height: 20),
+
+                RichText(
+                  text: TextSpan(
+                    style: const TextStyle(color: Colors.black, fontSize: 14),
+                    children: [
+                      const TextSpan(text: "Already have an account? "),
+                      TextSpan(
+                        text: "Login",
+                        style: const TextStyle(color: Colors.orangeAccent, fontWeight: FontWeight.bold),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => SignInScreen(),));
+                          },
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -394,7 +414,7 @@ InputDecoration fieldDecoration(String label) {
     fillColor: const Color(0xFFF4F4F4),
     contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
     border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(30),
+      borderRadius: BorderRadius.circular(10),
       borderSide: BorderSide.none,
     ),
   );
