@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:propusers/screens/about_us_screen.dart';
+import 'package:propusers/screens/blogs_listing_screen.dart';
+import 'package:propusers/screens/career_screen.dart';
 import 'package:propusers/screens/contact_us_screen.dart';
 import 'package:propusers/screens/management_screen.dart';
 import 'package:propusers/screens/neighbourhood_main_screen.dart';
+import 'package:propusers/screens/news_listing_screen.dart';
 import 'package:propusers/screens/office_location_screen.dart';
 import 'package:propusers/screens/privacy_policy_screen.dart';
 import 'package:propusers/screens/profile_screen.dart';
@@ -129,6 +132,24 @@ class _MoreScreenState extends State<MoreScreen> {
       "title": "Propreneur Experience",
       "iconColor": const Color(0xFFF2C94C),
       "route": PropreneurExperienceScreen(),
+    },
+    {
+      "svgPath": "assets/icons/career.svg",
+      "title": "Career",
+      "iconColor": const Color(0xFFF2C94C),
+      "route": CareerScreen(),
+    },
+    {
+      "svgPath": "assets/icons/news.svg",
+      "title": "News",
+      "iconColor": const Color(0xFFF2C94C),
+      "route": NewsListingScreen(),
+    },
+    {
+      "svgPath": "assets/icons/blog.svg",
+      "title": "Blogs",
+      "iconColor": const Color(0xFFF2C94C),
+      "route": BlogsListingScreen(),
     },
   ];
 
