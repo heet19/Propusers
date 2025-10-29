@@ -114,8 +114,12 @@ class LocalityData {
     points: json["points"] != null
         ? List<Point>.from(json["points"].map((x) => Point.fromJson(x)))
         : [],
-    latitude: json["latitude"]?.toDouble(),
-    longitude: json["longitude"]?.toDouble(),
+    latitude: json['latitude'] != null
+        ? double.tryParse(json['latitude'].toString())
+        : null,
+    longitude: json['longitude'] != null
+        ? double.tryParse(json['longitude'].toString())
+        : null,
     more_localitites: json["more_localitites"] != null
         ? List<dynamic>.from(json["more_localitites"].map((x) => x))
         : [],

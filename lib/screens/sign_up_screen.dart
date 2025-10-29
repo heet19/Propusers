@@ -4,6 +4,7 @@ import 'package:propusers/screens/privacy_policy_screen.dart';
 import 'package:propusers/screens/sign_in_screen.dart';
 import 'package:propusers/screens/terms_and_conditions_screen.dart';
 import 'package:propusers/screens/verify_code_screen.dart';
+import '../models/sign_up_models/sign_up_model.dart';
 import '../services/remote_service.dart';
 
 enum UserType { buyer, seller }
@@ -273,70 +274,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       backgroundColor: const Color(0xFFF5C954),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30),),
                     ),
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        if (!isChecked) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Please accept Terms & Privacy"),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                          return;
-                        }
-
-                        showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (_) => const Center(
-                              child: CircularProgressIndicator(
-                                color: Color(0xFFF5C954),
-                              )),
-                        );
-
-                        var service = RemoteService();
-                        var response = await service.signUp(
-                          name: FullNameController.text.trim(),
-                          email: EmailController.text.trim(),
-                          password: PasswordController.text.trim(),
-                          contact: PhoneController.text.trim(),
-                          city: selectedCity ?? '',
-                          type: selectedType == UserType.buyer
-                              ? 'Buyer'
-                              : 'Seller',
-                        );
-
-                        Navigator.pop(context); // close loader
-
-                        if (response != null && response['success'] == true) {
-                          final otp = response['otp'];
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => VerifyCodeScreen(
-                                name: FullNameController.text.trim(),
-                                email: EmailController.text.trim(),
-                                password: PasswordController.text.trim(),
-                                contact: PhoneController.text.trim(),
-                                city: selectedCity ?? '',
-                                type: selectedType == UserType.buyer
-                                    ? 'Buyer'
-                                    : 'Seller',
-                                otp: otp.toString(),
-                              ),
-                            ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                  response?['error'] ?? 'Something went wrong'),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
-                      }
-                    },
+                    onPressed: _submitSignUp,
                     child: const Text(
                       "SUBMIT",
                       style: TextStyle(
@@ -373,6 +311,67 @@ class _SignUpScreenState extends State<SignUpScreen> {
       ),
     );
   }
+
+
+void _submitSignUp() async {
+  if (!_formKey.currentState!.validate()) return;
+
+  if (!isChecked) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Please accept Terms & Privacy"),
+        backgroundColor: Colors.red,
+      ),
+    );
+    return;
+  }
+
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (_) => const Center(child: CircularProgressIndicator()),
+  );
+
+  var service = RemoteService();
+  var response = await service.signUp(
+    name: FullNameController.text.trim(),
+    email: EmailController.text.trim(),
+    password: PasswordController.text.trim(),
+    conformPassword: ConfirmPasswordController.text.trim(),
+    contact: PhoneController.text.trim(),
+    city: selectedCity ?? '',
+    type: selectedType == UserType.buyer ? 'Buyer' : 'Seller',
+  );
+
+  Navigator.pop(context); // close loader
+
+  if (response != null) {
+    SignUpModel user = response; // type-safe
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => VerifyCodeScreen(
+          user: user,
+          name: FullNameController.text.trim(),
+          password: PasswordController.text.trim(),
+          contact: PhoneController.text.trim(),
+          city: selectedCity ?? '',
+          type: selectedType == UserType.buyer ? 'Buyer' : 'Seller',
+          email: user.email,
+          otp: user.otp.toString(),
+        ),
+      ),
+    );
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Something went wrong'),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+}
 }
 
 // Custom Field Widget

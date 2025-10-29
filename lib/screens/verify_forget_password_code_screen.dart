@@ -1,44 +1,34 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:propusers/screens/reset_password_screen.dart';
 import 'package:propusers/theme/theme.dart';
-import '../models/sign_up_models/sign_up_model.dart';
+
 import '../services/remote_service.dart';
-import 'home_screen.dart';
 
-class VerifyCodeScreen extends StatefulWidget {
-  final SignUpModel user;
-  final String name;
+class VerifyForgetPasswordCodeScreen extends StatefulWidget {
   final String email;
-  final String password;
-  final String contact;
-  final String city;
-  final String type;
   final String otp;
+  final String user_id;
 
-  const VerifyCodeScreen({
+  const VerifyForgetPasswordCodeScreen({
     super.key,
-    required this.user,
-    required this.name,
-    required this.password,
-    required this.contact,
-    required this.city,
-    required this.type,
     required this.email,
     required this.otp,
+    required this.user_id
   });
 
   @override
-  State<VerifyCodeScreen> createState() => _VerifyCodeScreenState();
+  State<VerifyForgetPasswordCodeScreen> createState() => _VerifyForgetPasswordCodeScreenState();
 }
 
-class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
+class _VerifyForgetPasswordCodeScreenState extends State<VerifyForgetPasswordCodeScreen> {
   final List<TextEditingController> _otpControllers =
   List.generate(6, (index) => TextEditingController());
   int _secondsRemaining = 90;
   late Timer _timer;
   bool _isResendVisible = false;
-  late String _currentOtp = widget.otp;
+  late String _currentOtp;
 
   @override
   void initState() {
@@ -82,7 +72,11 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
   }
 
   void _submitOtp() {
-    String enteredOtp = _otpControllers.map((c) => c.text).join().trim();
+    String enteredOtp = _otpControllers.map((c) => c.text.trim()).join();
+
+    print("Entered OTP: $enteredOtp");
+    print("Actual OTP: ${widget.otp}");
+    print("Current OTP: $_currentOtp");
 
     if (enteredOtp.isEmpty || enteredOtp.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -91,7 +85,7 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
       return;
     }
 
-    if (enteredOtp == _currentOtp) {
+    if (enteredOtp == widget.otp || enteredOtp == _currentOtp) {
       //  OTP matches — navigate to HomeScreen
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('OTP Verified Successfully!')),
@@ -99,13 +93,8 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
 
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => HomeScreen(
-          name: widget.name,
-          email: widget.user.email,
-          password: widget.password,
-          contact: widget.contact,
-          city: widget.city,
-          type: widget.type,
+        MaterialPageRoute(builder: (context) => ResetPasswordScreen(
+          user: widget.user_id,
         )),
             (route) => false,
       );
@@ -145,10 +134,6 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
         const SnackBar(content: Text('OTP resent successfully')),
       );
       startTimer();
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(response?['message'] ?? 'Failed to resend OTP')),
-      );
     }
   }
 
@@ -284,7 +269,6 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
                 // OTP Fields + Timer + Resend
                 Column(
                   children: [
-
                     //  Enter OTP Text
                     Text(
                       'Enter 6 Digit OTP',

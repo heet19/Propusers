@@ -233,10 +233,12 @@ class RemoteService {
   }
 
   /// Sign Up
+  /// Sign Up
   Future<SignUpModel?> signUp({
     required String name,
     required String email,
     required String password,
+    required String conformPassword,
     required String contact,
     required String city,
     required String type,
@@ -244,39 +246,48 @@ class RemoteService {
     final url = Uri.parse('https://staging.propusers.com/admin/api/signUp');
 
     try {
+      final body = {
+        'name': name,
+        'email': email,
+        'password': password,
+        'confirm_password': conformPassword,
+        'contact': contact,
+        'city': city,
+        'type': type,
+        'user_type': type, // ✅ important for backend consistency
+      };
+
+      print('SIGN UP REQUEST BODY: $body');
+
       final response = await http.post(
         url,
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: {
-          'name': name,
-          'email': email,
-          'password': password,
-          'contact': contact,
-          'city': city,
-          'type': type,
-        },
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: body,
       );
+
+      print('SIGN UP STATUS: ${response.statusCode}');
+      print('SIGN UP RESPONSE: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
 
         if (data['success'] == true) {
-          //  Replace the previous Map return with this
           final signUpUser = SignUpModel.fromJson(data);
-          return signUpUser; // return model directly
+          return signUpUser;
         } else {
-          // API returned success=false
+          print('SIGN UP FAILED: ${data['message']}');
           return null;
         }
       } else {
-        return null; // HTTP error
+        print('HTTP ERROR: ${response.statusCode}');
+        return null;
       }
     } catch (e) {
-      return null; // exception
+      print('SIGN UP EXCEPTION: $e');
+      return null;
     }
   }
+
 
   /// Verify User
   Future<VerifyUserModel?> verifyUser({required int userId}) async {
@@ -338,6 +349,7 @@ class RemoteService {
     required String email,
     required String password,
     required int type,
+    required String userType,
   }) async {
     final url = Uri.parse('https://staging.propusers.com/admin/api/signIn');
 
@@ -346,6 +358,7 @@ class RemoteService {
         'email': email,
         'password': password,
         'type': type.toString(),
+        'user_type': userType,
       });
 
       if (response.statusCode == 200) {
@@ -584,5 +597,8 @@ class RemoteService {
     final blogsListing = await fetchBlogsListing();
     return blogsListing.data.where((blog) => blog.isTrending == 1).toList();
   }
+
+
+
 
 }

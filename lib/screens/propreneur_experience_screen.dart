@@ -13,8 +13,7 @@ class PropreneurExperienceScreen extends StatefulWidget {
       _PropreneurExperienceScreenState();
 }
 
-class _PropreneurExperienceScreenState
-    extends State<PropreneurExperienceScreen> {
+class _PropreneurExperienceScreenState extends State<PropreneurExperienceScreen> {
   PropreneurExperienceModel? propreneurExperience;
   bool isLoaded = false;
 

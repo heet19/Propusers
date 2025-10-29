@@ -1,23 +1,18 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:propusers/models/sign_in_models/sign_in_model.dart';
-import 'package:propusers/screens/forget_password_email_screen.dart';
-import 'package:propusers/screens/home_screen.dart';
 import 'package:propusers/screens/sign_up_screen.dart';
+import 'package:propusers/screens/verify_forget_password_code_screen.dart';
 import '../services/remote_service.dart';
 
-class SignInScreen extends StatefulWidget {
+class ForgetPasswordEmailScreen extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => _SignInScreenState();
+  State<StatefulWidget> createState() => _ForgetPasswordEmailScreenState();
 }
 
-class _SignInScreenState extends State<SignInScreen> {
+class _ForgetPasswordEmailScreenState extends State<ForgetPasswordEmailScreen> {
   final _formKey = GlobalKey<FormState>();
 
   var EmailController = TextEditingController();
-  var PasswordController = TextEditingController();
-
-  bool _obscureTextPassword = true;
 
   bool isValidEmail(String email) {
     String pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$';
@@ -64,9 +59,24 @@ class _SignInScreenState extends State<SignInScreen> {
 
                         // TITLE
                         titleText(context),
+                        SizedBox(height: getResponsiveSize(context, 10)),
 
-                        // Email + Password Fields
-                        textFields(context),
+                        // Email
+                        CustomField(
+                          controller: EmailController,
+                          hintText: "Email",
+                          keyboardType: TextInputType.emailAddress,
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Email is required';
+                            }
+                            if (!isValidEmail(value.trim())) {
+                              return 'Invalid email address';
+                            }
+                            return null;
+                          },
+                        ),
+                        SizedBox(height: getResponsiveSize(context, 10)),
 
                         // Submit Button
                         SizedBox(
@@ -75,9 +85,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFFF5C954),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30),),
                             ),
                             onPressed: () async {
                               if (_formKey.currentState!.validate()) {
@@ -92,35 +100,36 @@ class _SignInScreenState extends State<SignInScreen> {
                                 );
 
                                 var service = RemoteService();
-                                var response = await service.signIn(
+                                var response = await service.sendOtp(
                                   email: EmailController.text.trim(),
-                                  password: PasswordController.text.trim(),
                                   type: 1,
-                                  userType: 'Buyer'
                                 );
 
                                 Navigator.pop(context); // close loader
 
-                                if (response != null && response['success'] == true) {
-                                  SignInModel user = response['user'];
+                                if (response != null &&
+                                    response['success'] == true) {
+                                  var userOTP = response['data']['otp'];
+                                  var userID = response['data']['user'];
 
                                   Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (_) => HomeScreen(
-                                        email: user.email,
-                                        password: PasswordController.text.trim(),
-                                        name: user.name,
-                                        contact: user.contact,
-                                        city: '',
-                                        type: user.userType,
+                                      builder: (_) => VerifyForgetPasswordCodeScreen(
+                                        user_id: userID.toString(),               // tells the screen it's signup flow
+                                        otp: userOTP.toString(),                  // OTP received from API
+                                        email: EmailController.text.trim(),
                                       ),
                                     ),
                                   );
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text(response?['message'] ?? response?['error'] ?? 'Something went wrong',),
+                                      content: Text(
+                                        response?['message'] ??
+                                            response?['error'] ??
+                                            'Something went wrong',
+                                      ),
                                       backgroundColor: Colors.red,
                                     ),
                                   );
@@ -128,7 +137,7 @@ class _SignInScreenState extends State<SignInScreen> {
                               }
                             },
                             child: Text(
-                              "SIGN IN",
+                              "Send OTP",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: getResponsiveSize(context, 16),
@@ -203,83 +212,6 @@ class _SignInScreenState extends State<SignInScreen> {
     );
   }
 
-  Widget textFields(BuildContext context) {
-    return Column(
-      children: [
-        // Email
-        CustomField(
-          controller: EmailController,
-          hintText: "Email",
-          keyboardType: TextInputType.emailAddress,
-          validator: (value) {
-            if (value == null || value.trim().isEmpty) {
-              return 'Email is required';
-            }
-            if (!isValidEmail(value.trim())) {
-              return 'Invalid email address';
-            }
-            return null;
-          },
-        ),
-        SizedBox(height: getResponsiveSize(context, 10)),
-
-        // Password
-        CustomField(
-          controller: PasswordController,
-          hintText: "Password",
-          obscureText: _obscureTextPassword,
-          suffixIcon: IconButton(
-            icon: Icon(
-              _obscureTextPassword
-                  ? Icons.visibility_off
-                  : Icons.visibility,
-            ),
-            onPressed: () {
-              setState(() =>
-              _obscureTextPassword = !_obscureTextPassword);
-            },
-          ),
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Password is required';
-            }
-            return null;
-          },
-        ),
-        SizedBox(height: getResponsiveSize(context, 20)),
-
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-          SizedBox(width: 1),
-          RichText(
-            text: TextSpan(
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: getResponsiveSize(context, 14),
-              ),
-              children: [
-                TextSpan(
-                  text: "Forget Password?",
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => ForgetPasswordEmailScreen(),),
-                      );
-                    },
-                ),
-              ],
-            ),
-          )
-        ],)
-      ],
-    );
-  }
 }
 
 // Custom Field Widget

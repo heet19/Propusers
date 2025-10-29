@@ -86,9 +86,17 @@ class CityData {
     created_at: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
     updated_at: DateTime.tryParse(json['updated_at'] ?? '') ?? DateTime.now(),
     del_status: json['del_status'] ?? 0,
-    lat: (json['lat'] as num?)?.toDouble() ?? 0.0,
-    lng: (json['lng'] as num?)?.toDouble() ?? 0.0,
+    lat: _toDouble(json['lat']),
+    lng: _toDouble(json['lng']),
   );
+
+  static double _toDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0;
+  }
+
 }
 
 class LocalitiesData {
@@ -172,10 +180,17 @@ class LocalitiesData {
     updated_at: DateTime.tryParse(json['updated_at'] ?? '') ?? DateTime.now(),
     del_status: json['del_status'] ?? 0,
     city_name: json['city_name'] ?? "",
-    latitude: (json['latitude'] as num?)?.toDouble() ?? 0.0,
-    logitude: (json['logitude'] as num?)?.toDouble() ?? 0.0,
+    latitude: _toDouble(json['latitude']),
+    logitude: _toDouble(json['logitude']),
     image: json['image'] ?? "",
   );
+
+  static double _toDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0;
+  }
 
   Map<String, dynamic> toJson() => {
     "id": id,
